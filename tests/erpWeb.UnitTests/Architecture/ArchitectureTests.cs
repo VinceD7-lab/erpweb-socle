@@ -20,6 +20,8 @@ public sealed class ArchitectureTests
     [Theory]
     [InlineData("erpWeb.Infrastructure")]
     [InlineData("erpWeb.Web")]
+    [InlineData("Microsoft.EntityFrameworkCore.SqlServer")]
+    [InlineData("Microsoft.Data.SqlClient")]
     [InlineData("Microsoft.EntityFrameworkCore.Sqlite")]
     [InlineData("Microsoft.Data.Sqlite")]
     [InlineData("MailKit")]

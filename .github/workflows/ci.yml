@@ -18,6 +18,21 @@ jobs:
     name: build-test
     runs-on: ubuntu-latest
 
+    # SQL Server éphémère pour les tests d'intégration (LocalDB n'existe pas sous Linux).
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: 'Y'
+          MSSQL_SA_PASSWORD: 'Tests#Ci2026Sql'
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Tests#Ci2026Sql' -C -Q 'SELECT 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+
     steps:
       - name: Récupération du code
         uses: actions/checkout@v4
@@ -37,6 +52,8 @@ jobs:
         run: dotnet format erpWeb.sln --verify-no-changes --no-restore
 
       - name: Tests unitaires, d'architecture et d'intégration
+        env:
+          ERPWEB_TESTS_SQLSERVER: 'Server=localhost,1433;User Id=sa;Password=Tests#Ci2026Sql;TrustServerCertificate=True'
         run: dotnet test erpWeb.sln --no-build --configuration Release --logger trx --results-directory TestResults
 
       - name: Publication des résultats de tests
