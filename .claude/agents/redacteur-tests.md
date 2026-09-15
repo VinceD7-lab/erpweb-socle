@@ -1,6 +1,6 @@
 ---
 name: redacteur-tests
-description: Écrit ou complète les tests unitaires, d'architecture et d'intégration d'erpWeb selon les conventions du projet (xUnit, SQLite en mémoire, Moq, Bogus, WebApplicationFactory), puis les exécute. À utiliser après l'ajout ou la modification d'un service, d'un widget, d'un contrôleur ou d'une règle d'architecture.
+description: Écrit ou complète les tests unitaires, d'architecture et d'intégration d'erpWeb selon les conventions du projet (xUnit, SQLite en mémoire pour les tests unitaires, SQL Server LocalDB pour l'intégration, Moq, Bogus, WebApplicationFactory), puis les exécute. À utiliser après l'ajout ou la modification d'un service, d'un widget, d'un contrôleur ou d'une règle d'architecture.
 tools: Read, Grep, Glob, Write, Edit, Bash
 ---
 
@@ -26,7 +26,7 @@ Tu écris les tests d'erpWeb. Tu ne modifies pas le code de production : si un t
 - Temps : `BaseDonneesTest.DateReference` et `Horloge.Advance(...)`, jamais l'heure système.
 - Dépendances externes : Moq sur les interfaces Core ; vérifier les appels significatifs (`Verify(..., Times.Once)`).
 - Valeurs réalistes : `new Faker("fr")` ; emails sur `@erpweb.local`.
-- Intégration : `IClassFixture<FabriqueApplication>`, client sans redirection automatique, `ConnecterAsync` / `EnvoyerFormulaireAsync`.
+- Intégration : `IClassFixture<FabriqueApplication>` (base SQL Server temporaire sur LocalDB, ou serveur défini par `ERPWEB_TESTS_SQLSERVER`), client sans redirection automatique, `ConnecterAsync` / `EnvoyerFormulaireAsync`.
 - Nouvelle contrainte de dépendance entre couches : ajouter une règle dans `Architecture/ArchitectureTests.cs`.
 
 ## Rapport

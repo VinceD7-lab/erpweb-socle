@@ -1,6 +1,6 @@
 # erpWeb
 
-Socle applicatif d'ERP pour PME, orienté tableau de bord — ASP.NET Core MVC (.NET 10), EF Core + SQLite.
+Socle applicatif d'ERP pour PME, orienté tableau de bord — ASP.NET Core MVC (.NET 10), EF Core + SQL Server LocalDB.
 
 ## Fonctionnalités du socle
 
@@ -16,6 +16,7 @@ Socle applicatif d'ERP pour PME, orienté tableau de bord — ASP.NET Core MVC (
 
 - [SDK .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - Outil EF Core : `dotnet tool install --global dotnet-ef` (ou `dotnet tool update --global dotnet-ef`)
+- SQL Server LocalDB (instance `MSSQLLocalDB`) : installé avec Visual Studio (charge de travail « Stockage et traitement des données ») ou via l'installateur SQL Server Express (option LocalDB) ; vérifier avec `sqllocaldb info MSSQLLocalDB`
 - Accès réseau au premier build : les bibliothèques frontend (Bootstrap, Chart.js, DataTables…) sont restaurées par LibMan
 
 ## Démarrage
@@ -24,7 +25,7 @@ Socle applicatif d'ERP pour PME, orienté tableau de bord — ASP.NET Core MVC (
 # 1. Mot de passe du compte administrateur (stocké hors du dépôt)
 dotnet user-secrets set "Administrateur:MotDePasse" "<MotDePasse#Solide1>" --project src/erpWeb.Web
 
-# 2. Création de la base SQLite
+# 2. Création de la base erpWeb sur LocalDB
 dotnet ef database update -p src/erpWeb.Infrastructure -s src/erpWeb.Web
 
 # 3. Lancement
@@ -41,7 +42,7 @@ Ouvrir <http://localhost:5271> et se connecter avec `admin@erpweb.local` et le m
 
 | Clé | Rôle | Valeur par défaut |
 | --- | --- | --- |
-| `ConnectionStrings:ParDefaut` | Base SQLite (chemin relatif au projet Web) | `Data Source=erpWeb.db` |
+| `ConnectionStrings:ParDefaut` | Base SQL Server | `Server=(localdb)\MSSQLLocalDB;Database=erpWeb;…` |
 | `Administrateur:Email` / `NomComplet` | Compte administrateur initial | `admin@erpweb.local` |
 | `Administrateur:MotDePasse` | Mot de passe initial (**secrets utilisateur uniquement**) | — |
 | `BaseDeDonnees:AppliquerMigrationsAuDemarrage` | Migration automatique au démarrage | `true` en Development |
@@ -91,7 +92,7 @@ Le code applique les principes **SOLID** et proscrit les anti-patterns **STUPID*
 | Liskov / Interface Segregation | Interfaces petites (`IStockageFichiers`, `IServiceEmail`, `ILectureJournalAudit`) | Relecture |
 | Dependency Inversion | Interfaces dans Core, implémentations dans Infrastructure | Tests d'architecture NetArchTest |
 | Pas de Singleton / Tight coupling | Durées de vie gérées par la DI, aucune instanciation de service | Hook `verifier-regles`, tests d'architecture |
-| Testabilité | `TimeProvider`, SQLite en mémoire, aucune dépendance statique | 50+ tests |
+| Testabilité | `TimeProvider`, SQLite en mémoire pour les tests unitaires, aucune dépendance statique | 50+ tests |
 | Nommage explicite | Conventions `.editorconfig` | `dotnet format --verify-no-changes` (CI) |
 | Pas de duplication | `EntiteAuditable`, partials, Tag Helpers, configurations EF | Relecture |
 
@@ -101,6 +102,8 @@ Le code applique les principes **SOLID** et proscrit les anti-patterns **STUPID*
 dotnet test erpWeb.sln                                            # tous les tests
 dotnet test tests/erpWeb.UnitTests --filter "FullyQualifiedName~Architecture"   # règles d'architecture
 ```
+
+Les tests unitaires utilisent SQLite en mémoire. Les tests d'intégration créent puis suppriment une base `erpWeb_Tests_<guid>` sur LocalDB, avec les migrations réelles ; pour un autre serveur (CI, conteneur), définir la variable `ERPWEB_TESTS_SQLSERVER` (chaîne de connexion sans nom de base).
 
 ## Gestion de version — GitHub Flow
 

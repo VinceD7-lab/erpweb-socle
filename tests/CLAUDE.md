@@ -21,6 +21,6 @@ dotnet test tests/erpWeb.UnitTests --filter "FullyQualifiedName~Architecture"
 
 ## Tests d'intégration (`erpWeb.IntegrationTests`)
 
-- `IClassFixture<FabriqueApplication>` : environnement `Test`, base SQLite temporaire, administrateur `FabriqueApplication.EmailAdministrateur`.
+- `IClassFixture<FabriqueApplication>` : environnement `Test`, base SQL Server temporaire `erpWeb_Tests_<guid>` supprimée à la fin (LocalDB, ou serveur défini par la variable `ERPWEB_TESTS_SQLSERVER`), administrateur `FabriqueApplication.EmailAdministrateur`.
 - Client sans redirection automatique : `CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false })`.
 - `ExtensionsClient.ConnecterAsync` et `EnvoyerFormulaireAsync` gèrent le jeton antiforgery.

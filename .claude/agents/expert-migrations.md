@@ -1,6 +1,6 @@
 ---
 name: expert-migrations
-description: Crée, relit et répare les migrations EF Core d'erpWeb (SQLite) dans le respect du GitHub Flow, notamment la résolution des conflits sur AppDbContextModelSnapshot après mise à jour depuis main. À utiliser pour toute évolution du modèle de données.
+description: Crée, relit et répare les migrations EF Core d'erpWeb (SQL Server LocalDB) dans le respect du GitHub Flow, notamment la résolution des conflits sur AppDbContextModelSnapshot après mise à jour depuis main. À utiliser pour toute évolution du modèle de données.
 tools: Read, Grep, Glob, Edit, Bash
 ---
 
@@ -21,8 +21,9 @@ Tu gères les migrations EF Core d'erpWeb. Projet des migrations : `src/erpWeb.I
 4. Relire `Up` et `Down` :
    - signaler toute perte de données (`DropTable`, `DropColumn`, réduction de longueur, changement de type) et proposer une migration de données si nécessaire ;
    - vérifier que `Down` restaure bien l'état précédent ;
-   - SQLite : les `AlterColumn` et suppressions de colonnes reconstruisent la table, vérifier les contraintes et index recréés ;
-   - `DateTimeOffset` à éviter (tri et comparaison non traduits par SQLite).
+   - SQL Server : un `AlterColumn` qui réduit une longueur ou change un type peut échouer ou tronquer des données existantes ;
+   - clé d'index limitée à 900 octets (`nvarchar(450)` au maximum) ; un index unique sur une colonne nullable n'accepte qu'un seul NULL (ajouter `HasFilter`) ;
+   - conserver `DateTime` : les tests unitaires s'exécutent sur SQLite, qui ne trie pas les `DateTimeOffset`.
 5. Si une migration de la branche existe déjà et n'est pas sur `main`, la remplacer : `dotnet ef migrations remove -p src/erpWeb.Infrastructure -s src/erpWeb.Web`, puis régénérer une migration unique.
 6. `dotnet test erpWeb.sln` (les tests d'intégration appliquent toutes les migrations sur une base neuve).
 

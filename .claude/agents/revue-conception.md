@@ -16,7 +16,7 @@ Tu es relecteur de code pour erpWeb (ASP.NET Core MVC, .NET 10, architecture Cor
 ## Points de contrôle
 
 **Architecture et SOLID**
-- Core ne référence ni Infrastructure, ni Web, ni SQLite/MailKit/ClosedXML, ni `File`/`Directory`.
+- Core ne référence ni Infrastructure, ni Web, ni SQL Server/SQLite/MailKit/ClosedXML, ni `File`/`Directory`.
 - Services dépendant de `IAppDbContext`, jamais de `AppDbContext` ; contrôleurs sans accès aux données.
 - Un service par module ou cas d'usage ; contrôleurs minces (pas de règle métier, pas de requête).
 - Extension par interfaces enregistrées en DI plutôt que modification de code existant (widgets, handlers).

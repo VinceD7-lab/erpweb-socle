@@ -1,6 +1,6 @@
 # erpWeb — instructions pour Claude Code
 
-Socle ERP PME en ASP.NET Core MVC (.NET 10), EF Core + SQLite. Spécification complète : [docs/prompt-generation-socle-erp.md](docs/prompt-generation-socle-erp.md).
+Socle ERP PME en ASP.NET Core MVC (.NET 10), EF Core + SQL Server LocalDB (tests unitaires sur SQLite en mémoire). Spécification complète : [docs/prompt-generation-socle-erp.md](docs/prompt-generation-socle-erp.md).
 
 ## Commandes
 

@@ -15,17 +15,18 @@ Tu es chargé de générer le socle technique d'une application ERP pour PME, en
 | Framework               | **.NET 10 (LTS)**                                                         |
 | Pattern d'architecture  | ASP.NET Core MVC + architecture en couches (Core / Infrastructure / Web)  |
 | Vues                    | Razor Views                                                               |
-| Base de données         | Entity Framework Core + SQLite                                            |
+| Base de données         | Entity Framework Core + SQL Server LocalDB                                |
 | Frontend                | Bootstrap 5.3 + Bootstrap Icons 1.11.3                                    |
 
 ## Dépendances techniques (packages NuGet)
 
 ### Accès aux données / ORM
 
-- **Défaut** : `Microsoft.EntityFrameworkCore.Sqlite` + `Microsoft.EntityFrameworkCore.Tools` — ORM standard Microsoft, migrations Code-First, intégration native avec Identity
+- **Défaut** : `Microsoft.EntityFrameworkCore.SqlServer` + `Microsoft.EntityFrameworkCore.Tools` — ORM standard Microsoft, migrations Code-First, intégration native avec Identity
+  - Base locale : SQL Server LocalDB, `Server=(localdb)\MSSQLLocalDB;Database=erpWeb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True`
 - **Pas de repositories** : les services métier accèdent aux données via l'interface `IAppDbContext` (définie dans Core, implémentée par `AppDbContext` dans Infrastructure)
   - `IAppDbContext` expose uniquement les `DbSet<T>` nécessaires et `SaveChangesAsync(CancellationToken)` ; elle n'expose ni `Database`, ni `ChangeTracker`
-  - Core référence uniquement le package `Microsoft.EntityFrameworkCore` (pour `DbSet<T>` et LINQ asynchrone), jamais le provider SQLite
+  - Core référence uniquement le package `Microsoft.EntityFrameworkCore` (pour `DbSet<T>` et LINQ asynchrone), jamais le provider SQL Server
 
 ### Identité (comptes, rôles, claims)
 
@@ -78,7 +79,8 @@ Tu es chargé de générer le socle technique d'une application ERP pour PME, en
 ### Tests
 
 - `xUnit` + `Moq` — standard pour les tests unitaires .NET
-- `Microsoft.EntityFrameworkCore.Sqlite` en mémoire (`DataSource=:memory:`) — tests des services s'appuyant sur `IAppDbContext` (préférable au mock des `DbSet<T>`)
+- `Microsoft.EntityFrameworkCore.Sqlite` en mémoire (`DataSource=:memory:`) — tests unitaires des services s'appuyant sur `IAppDbContext` (préférable au mock des `DbSet<T>`)
+- SQL Server pour les tests d'intégration — base temporaire par exécution avec les migrations réelles : LocalDB en local, conteneur `mcr.microsoft.com/mssql/server` en CI (variable `ERPWEB_TESTS_SQLSERVER`)
 - `Bogus` — génération de données de test réalistes (jeux de démo)
 - `Microsoft.AspNetCore.Mvc.Testing` — tests d'intégration des contrôleurs MVC
 - `NetArchTest.Rules` — tests d'architecture vérifiant automatiquement les dépendances entre couches
@@ -152,7 +154,7 @@ Dépendances entre projets :
 | **O** — Open/Closed | Extension sans modification : widgets du tableau de bord via `IWidgetTableauDeBord`, permissions via `IAuthorizationHandler`, audit via `SaveChangesInterceptor`, stockage via `IStockageFichiers`. L'ajout d'un module ne doit pas modifier le code existant du socle. |
 | **L** — Liskov Substitution | Toute implémentation d'une interface respecte son contrat, sans `NotImplementedException` ni comportement restreint. Les implémentations de test doivent être substituables sans modifier le code appelant. |
 | **I** — Interface Segregation | Interfaces petites et ciblées (`IStockageFichiers`, `IServiceEmail`, `ILectureJournalAudit`). `IAppDbContext` limitée aux `DbSet<T>` et à `SaveChangesAsync`. Options typées découpées par section (`OptionsSmtp`, `OptionsStockage`), pas de classe de configuration globale. |
-| **D** — Dependency Inversion | Les interfaces sont définies dans `Core` et implémentées dans `Infrastructure`. Les services dépendent de `IAppDbContext`, jamais de `AppDbContext`. `Core` ne référence ni le provider SQLite, ni MailKit, et n'accède pas directement au système de fichiers (`File`, `Directory`). Toutes les dépendances sont injectées par constructeur. |
+| **D** — Dependency Inversion | Les interfaces sont définies dans `Core` et implémentées dans `Infrastructure`. Les services dépendent de `IAppDbContext`, jamais de `AppDbContext`. `Core` ne référence ni le provider SQL Server, ni MailKit, et n'accède pas directement au système de fichiers (`File`, `Directory`). Toutes les dépendances sont injectées par constructeur. |
 
 ### Anti-patterns STUPID (à proscrire)
 
@@ -223,8 +225,8 @@ Format : `<type>/<description-courte-en-kebab-case>`, sans accents
 3. Authentification fonctionnelle (inscription/connexion) avec au moins un utilisateur admin seedé
 4. Tableau de bord vide mais fonctionnel (layout + zone widgets)
 5. `README.md` avec les instructions de lancement (prérequis, commandes `dotnet ef database update`, `dotnet run`) et une section « Principes de conception » résumant les règles SOLID/STUPID appliquées
-6. `appsettings.Development.json` avec la chaîne de connexion locale (SQLite par défaut)
-7. Tests d'architecture (NetArchTest) vérifiant que `Core` ne dépend ni d'`Infrastructure`, ni de `Web`, ni du provider SQLite, et que les services ne dépendent pas de `AppDbContext`
+6. `appsettings.Development.json` avec la chaîne de connexion locale (SQL Server LocalDB)
+7. Tests d'architecture (NetArchTest) vérifiant que `Core` ne dépend ni d'`Infrastructure`, ni de `Web`, ni des providers SQL Server et SQLite, et que les services ne dépendent pas de `AppDbContext`
 8. Au moins un test unitaire par service du socle, démontrant sa testabilité
 9. Dépôt Git initialisé avec `.gitignore` (`dotnet new gitignore`) et `.gitattributes` (fins de ligne normalisées)
 10. Workflow GitHub Actions `.github/workflows/ci.yml`, déclenché sur `pull_request` et `push` vers `main` : `dotnet restore` → `dotnet build` (avertissements = erreurs) → `dotnet format --verify-no-changes` → `dotnet test` (tests unitaires, d'intégration et d'architecture)

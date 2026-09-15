@@ -26,7 +26,7 @@ Ajouter-Regle '\bIServiceProvider\b' 'IServiceProvider hors composition root : S
 Ajouter-Regle '\b(private|internal|public|protected)\s+static\s+(?!readonly\b|extern\b|class\b|partial\b|async\b|void\b|implicit\b|explicit\b)[\w<>\[\],\.\?]+\s+\w+\s*(=(?!>)|;)' 'Champ statique modifiable : etat statique interdit (Singleton).'
 Ajouter-Regle '\bstatic\s+[\w<>\[\],\.\?]+\s+\w+\s*\{\s*get;\s*set;' 'Propriete statique modifiable : etat statique interdit (Singleton).'
 Ajouter-Regle '^\s*using\s+erpWeb\.(Infrastructure|Web)\b' 'Core ne doit dependre ni d''Infrastructure ni de Web (Dependency Inversion).' ($couche -eq 'Core')
-Ajouter-Regle '^\s*using\s+(Microsoft\.Data\.Sqlite|MailKit|MimeKit|ClosedXML)\b' 'Bibliotheque d''infrastructure dans Core : definir une interface dans Core, l''implementer dans Infrastructure.' ($couche -eq 'Core')
+Ajouter-Regle '^\s*using\s+(Microsoft\.Data\.SqlClient|Microsoft\.Data\.Sqlite|MailKit|MimeKit|ClosedXML)\b' 'Bibliotheque d''infrastructure dans Core : definir une interface dans Core, l''implementer dans Infrastructure.' ($couche -eq 'Core')
 Ajouter-Regle '\b(File|Directory)\.\w+\s*\(' 'Acces direct au systeme de fichiers dans Core : passer par une interface (ex. IStockageFichiers).' ($couche -eq 'Core')
 Ajouter-Regle '\bAppDbContext\b' 'Dependance a AppDbContext hors Infrastructure : utiliser IAppDbContext.' ($couche -ne 'Infrastructure' -and -not $estCompositionRoot)
 Ajouter-Regle '\bIAppDbContext\b' 'Acces aux donnees dans un controleur : deleguer a un service de Core.' $estControleur
