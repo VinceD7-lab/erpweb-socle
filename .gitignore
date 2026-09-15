@@ -487,3 +487,5 @@ $RECYCLE.BIN/
 *.db-shm
 *.db-wal
 App_Data/
+# Bibliothèques frontend restaurées par LibMan au build
+src/erpWeb.Web/wwwroot/lib/
