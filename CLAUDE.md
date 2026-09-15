@@ -39,3 +39,11 @@ dotnet run --project src/erpWeb.Web
 - Jamais de commit sur `main` : travailler sur `<type>/<description>` (`fonctionnalite/`, `correctif/`, `refactorisation/`, `documentation/`, `technique/`)
 - Commits Conventional Commits en français : `feat(module): description`
 - Une migration par PR maximum ; ne jamais modifier une migration déjà fusionnée dans `main`
+
+## Outillage
+
+- Instructions détaillées par couche : `src/erpWeb.Core/CLAUDE.md`, `src/erpWeb.Infrastructure/CLAUDE.md`, `src/erpWeb.Web/CLAUDE.md`, `tests/CLAUDE.md`
+- Skills : `/demarrer-branche` avant toute évolution, `/nouveau-module`, `/nouveau-widget`, `/preparer-pr` avant d'ouvrir une Pull Request
+- Agents : `revue-conception` (relecture SOLID/STUPID, lecture seule), `redacteur-tests`, `expert-migrations`
+- Hooks : un retour de `verifier-regles` ou `verifier-build` est bloquant, corriger la cause plutôt que contourner la règle
+- Consulter la documentation Microsoft Learn (MCP) avant d'utiliser une API .NET 10 / EF Core 10 récente
