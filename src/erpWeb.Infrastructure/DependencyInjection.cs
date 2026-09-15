@@ -11,7 +11,6 @@ using erpWeb.Infrastructure.Exports;
 using erpWeb.Infrastructure.Identite;
 using erpWeb.Infrastructure.Stockage;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +24,7 @@ public static class DependencyInjection
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, string repertoireContenu)
     {
-        var chaineConnexion = ObtenirChaineConnexion(configuration, repertoireContenu);
+        var chaineConnexion = ObtenirChaineConnexion(configuration);
 
         services.Configure<OptionsSmtp>(configuration.GetSection(OptionsSmtp.Section));
         services.Configure<OptionsAdministrateur>(configuration.GetSection(OptionsAdministrateur.Section));
@@ -34,7 +33,7 @@ public static class DependencyInjection
 
         services.AddScoped<IntercepteurAudit>();
         services.AddDbContext<AppDbContext>((fournisseur, options) => options
-            .UseSqlite(chaineConnexion)
+            .UseSqlServer(chaineConnexion)
             .AddInterceptors(fournisseur.GetRequiredService<IntercepteurAudit>()));
         services.AddScoped<IAppDbContext>(fournisseur => fournisseur.GetRequiredService<AppDbContext>());
 
@@ -53,10 +52,9 @@ public static class DependencyInjection
             .AddErrorDescriber<DescripteurErreursIdentiteFrancais>();
 
     /// <summary>Ajoute la table Parametres comme dernière source : elle surcharge les fichiers de configuration.</summary>
-    public static ConfigurationManager AddParametresBaseDeDonnees(this ConfigurationManager configuration, string repertoireContenu)
+    public static ConfigurationManager AddParametresBaseDeDonnees(this ConfigurationManager configuration)
     {
-        var chaineConnexion = ObtenirChaineConnexion(configuration, repertoireContenu);
-        ((IConfigurationBuilder)configuration).Add(new SourceConfigurationParametres(chaineConnexion));
+        ((IConfigurationBuilder)configuration).Add(new SourceConfigurationParametres(ObtenirChaineConnexion(configuration)));
         return configuration;
     }
 
@@ -67,19 +65,7 @@ public static class DependencyInjection
         await initialisateur.InitialiserAsync(appliquerMigrations, jetonAnnulation);
     }
 
-    /// <summary>Résout un chemin SQLite relatif par rapport au répertoire de l'application Web.</summary>
-    private static string ObtenirChaineConnexion(IConfiguration configuration, string repertoireContenu)
-    {
-        var chaine = configuration.GetConnectionString(NomChaineConnexion)
+    private static string ObtenirChaineConnexion(IConfiguration configuration)
+        => configuration.GetConnectionString(NomChaineConnexion)
             ?? throw new InvalidOperationException($"Chaîne de connexion « {NomChaineConnexion} » absente de la configuration.");
-
-        var constructeur = new SqliteConnectionStringBuilder(chaine);
-        var estEnMemoire = constructeur.DataSource == ":memory:" || constructeur.Mode == SqliteOpenMode.Memory;
-        if (!estEnMemoire && !Path.IsPathRooted(constructeur.DataSource))
-        {
-            constructeur.DataSource = Path.Combine(repertoireContenu, constructeur.DataSource);
-        }
-
-        return constructeur.ToString();
-    }
 }

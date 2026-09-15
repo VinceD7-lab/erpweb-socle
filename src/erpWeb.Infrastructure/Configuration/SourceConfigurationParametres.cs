@@ -1,5 +1,5 @@
 using erpWeb.Infrastructure.Donnees.Configurations;
-using Microsoft.Data.Sqlite;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 namespace erpWeb.Infrastructure.Configuration;
@@ -22,7 +22,7 @@ public sealed class SourceConfigurationParametres : IConfigurationSource
 
 public sealed class FournisseurConfigurationParametres : ConfigurationProvider
 {
-    private const string Requete = "SELECT Cle, Valeur FROM " + ConfigurationParametre.NomTable;
+    private const string Requete = "SELECT Cle, Valeur FROM [dbo].[" + ConfigurationParametre.NomTable + "]";
 
     private readonly string _chaineConnexion;
 
@@ -37,7 +37,7 @@ public sealed class FournisseurConfigurationParametres : ConfigurationProvider
 
         try
         {
-            using var connexion = new SqliteConnection(_chaineConnexion);
+            using var connexion = new SqlConnection(_chaineConnexion);
             connexion.Open();
             using var commande = connexion.CreateCommand();
             commande.CommandText = Requete;
@@ -47,7 +47,7 @@ public sealed class FournisseurConfigurationParametres : ConfigurationProvider
                 donnees[lecteur.GetString(0)] = lecteur.GetString(1);
             }
         }
-        catch (SqliteException)
+        catch (SqlException)
         {
             // Base ou table absente (avant la première migration) : aucun paramètre en base.
         }

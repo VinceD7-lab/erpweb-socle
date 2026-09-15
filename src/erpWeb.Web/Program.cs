@@ -15,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 var repertoireContenu = builder.Environment.ContentRootPath;
 
 // Paramètres en base : dernière source, ils surchargent les fichiers de configuration.
-builder.Configuration.AddParametresBaseDeDonnees(repertoireContenu);
+builder.Configuration.AddParametresBaseDeDonnees();
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddHttpContextAccessor();

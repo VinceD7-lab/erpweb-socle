@@ -13,6 +13,7 @@
     <PackageReference Include="Bogus" />
     <PackageReference Include="NetArchTest.Rules" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
   </ItemGroup>
 
   <ItemGroup>
