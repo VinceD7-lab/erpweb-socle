@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation de .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restauration
+        run: dotnet restore erpWeb.sln
+
+      - name: Build (avertissements = erreurs)
+        run: dotnet build erpWeb.sln --no-restore --configuration Release
+
+      - name: Vérification du format et du nommage
+        run: dotnet format erpWeb.sln --verify-no-changes --no-restore
+
+      - name: Tests unitaires, d'architecture et d'intégration
+        run: dotnet test erpWeb.sln --no-build --configuration Release --logger trx --results-directory TestResults
+
+      - name: Publication des résultats de tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultats-tests
+          path: TestResults
