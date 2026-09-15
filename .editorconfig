@@ -88,6 +88,10 @@ dotnet_naming_rule.constantes_en_pascal.symbols = constantes
 dotnet_naming_rule.constantes_en_pascal.style = pascal
 dotnet_naming_rule.constantes_en_pascal.severity = warning
 
+# Actions MVC : le nom de l'action est l'URL (ASP.NET Core retire le suffixe Async), pas de suffixe imposé
+[src/erpWeb.Web/Controllers/*.cs]
+dotnet_naming_rule.methodes_asynchrones_suffixees.severity = none
+
 # Les migrations EF Core sont générées : pas d'analyse de style
 [**/Migrations/*.cs]
 generated_code = true
