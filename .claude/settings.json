@@ -24,7 +24,7 @@
       "PowerShell(git log:*)",
       "PowerShell(dotnet user-secrets list --project src/erpWeb.Web 2>&1 | ForEach-Object { if \\($_ -match 'MotDePasse'\\) { \\($_ -split '='\\)[0] + '= \\(défini\\)' } else { $_ } })",
       "PowerShell(dotnet run --project src/erpWeb.Web --launch-profile http)",
-      "PowerShell($pret = $false; for \\($i = 0; $i -lt 90 -and -not $pret; $i++\\) { Start-Sleep -Seconds 1; if \\(\\(curl.exe -s -o NUL -w \"%{http_code}\" http://localhost:5271/Compte/Connexion\\) -eq '200'\\) { $pret = $true } }; \"Application prête : $pret \\(après ~$i s\\)\"; Get-Content 'C:\\\\Users\\\\joe\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-joe-dev-dev-csharp-erp-web\\\\9bcd67b8-c8fd-4985-a4ce-c591a5282b22\\\\tasks\\\\baytwjkx3.output' -Encoding UTF8 | Where-Object { $_ -match 'Now listening|administrateur|warn|fail|crit|error|Exception' } | Select-Object -First 15)",
+      "PowerShell($pret = $false; for \\($i = 0; $i -lt 90 -and -not $pret; $i++\\) { Start-Sleep -Seconds 1; if \\(\\(curl.exe -s -o NUL -w \"%{http_code}\" http://localhost:5271/Compte/Connexion\\) -eq '200'\\) { $pret = $true } }; \"Application prête : $pret \\(après ~$i s\\)\")",
       "PowerShell(dotnet run --no-build --project src/erpWeb.Web --launch-profile http)"
     ],
     "deny": [
